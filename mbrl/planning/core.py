@@ -48,6 +48,14 @@ class Agent:
         """Resets any internal state of the agent."""
         pass
 
+    def save(self, save_dir: Union[str, pathlib.Path]):
+        """Saves the model to the given directory."""
+        pass
+
+    def load(self, load_dir: Union[str, pathlib.Path]):
+        """Loads the model from the given path."""
+        pass
+
 
 class RandomAgent(Agent):
     """An agent that samples action from the environments action space.

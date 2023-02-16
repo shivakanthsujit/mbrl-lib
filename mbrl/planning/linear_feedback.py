@@ -2,7 +2,8 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
-from typing import Optional
+import pathlib
+from typing import Optional, Union
 
 import numpy as np
 
@@ -120,3 +121,21 @@ class PIDAgent(Agent):
         return np.stack(
             (self._get_P(), self._get_I(), self._get_D(), self._get_targets())
         ).flatten()
+
+    def save(self, save_dir: Union[str, pathlib.Path]):
+        """
+        Saves the parameters to the given directory.
+        """
+        params = self.get_parameters()
+        np.save(pathlib.Path(save_dir) / "params.npy", params)
+
+    def load(self, load_dir: Union[str, pathlib.Path]):
+        """
+        Loads the parameters from the given path.
+        """
+        params = np.load(pathlib.Path(load_dir) / "params.npy")
+        k_p, k_i, k_d, target = np.split(params, 4)
+        self.k_p = k_p.reshape(self.n_dof, self.batch_dim)
+        self.k_i = k_i.reshape(self.n_dof, self.batch_dim)
+        self.k_d = k_d.reshape(self.n_dof, self.batch_dim)
+        self.target = target.reshape(self.n_dof, self.batch_dim)

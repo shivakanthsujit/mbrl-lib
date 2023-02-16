@@ -2,8 +2,9 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
+import pathlib
 import time
-from typing import Callable, List, Optional, Sequence, Tuple, cast
+from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
 
 import hydra
 import numpy as np
@@ -714,6 +715,24 @@ class TrajectoryOptimizerAgent(Agent):
 
         plan = self.optimizer.optimize(trajectory_eval_fn)
         return plan
+
+    def save(self, save_dir: Union[str, pathlib.Path]):
+        """
+        Saves the parameters to the given directory.
+        """
+        if self.optimizer.keep_last_solution:
+            params = self.optimizer.previous_solution.detach().cpu().numpy()
+            np.save(pathlib.Path(save_dir) / "params.npy", params)
+
+    def load(self, load_dir: Union[str, pathlib.Path]):
+        """
+        Loads the parameters from the given path.
+        """
+        if self.optimizer.keep_last_solution:
+            params = np.load(pathlib.Path(load_dir) / "params.npy")
+            self.optimizer.previous_solution = torch.FloatTensor(params).to(
+                self.optimizer.initial_solution.device
+            )
 
 
 def create_trajectory_optim_agent_for_model(

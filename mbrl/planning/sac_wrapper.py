@@ -2,6 +2,9 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
+import pathlib
+from typing import Union
+
 import numpy as np
 import torch
 
@@ -44,3 +47,11 @@ class SACAgent(Agent):
             return self.sac_agent.select_action(
                 obs, batched=batched, evaluate=not sample
             )
+
+    def save(self, save_dir: Union[str, pathlib.Path]):
+        """Saves the model to the given directory."""
+        self.sac_agent.save_checkpoint(ckpt_path=pathlib.Path(save_dir) / "sac.pth")
+
+    def load(self, load_dir: Union[str, pathlib.Path]):
+        """Loads the model from the given path."""
+        self.sac_agent.load_checkpoint(ckpt_path=pathlib.Path(load_dir) / "sac.pth")
