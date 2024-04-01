@@ -1,0 +1,126 @@
+action_optimizer:
+  _target_: mbrl.planning.CEMOptimizer
+  alpha: 0.0
+  clipped_normal: true
+  device: cuda:0
+  elite_ratio: 0.1
+  lower_bound: ???
+  num_iterations: 10
+  population_size: 1000
+  return_mean_elites: true
+  upper_bound: ???
+algorithm:
+  action_noise_std: 0.3
+  agent:
+    _target_: mbrl.planning.TrajectoryOptimizerAgent
+    action_lb: ???
+    action_ub: ???
+    keep_last_solution: false
+    optimizer_cfg:
+      _target_: mbrl.planning.CEMOptimizer
+      alpha: 0.0
+      clipped_normal: true
+      device: cuda:0
+      elite_ratio: 0.1
+      lower_bound: ???
+      num_iterations: 10
+      population_size: 1000
+      return_mean_elites: true
+      upper_bound: ???
+    planning_horizon: 12
+    replan_freq: 1
+    verbose: false
+  dataset_size: 1000000
+  name: planet
+  num_episodes: 1000
+  num_initial_trajectories: 5
+  test_frequency: 25
+debug_mode: false
+device: cuda:0
+dynamics_model:
+  _target_: mbrl.models.PlaNetModel
+  action_size: ???
+  belief_size: 200
+  decoder_config:
+  - - 1024
+    - 1
+    - 1
+  - - - 1024
+      - 128
+      - 5
+      - 2
+    - - 128
+      - 64
+      - 5
+      - 2
+    - - 64
+      - 32
+      - 6
+      - 2
+    - - 32
+      - 3
+      - 6
+      - 2
+  device: cuda:0
+  encoder_config:
+  - - 3
+    - 32
+    - 4
+    - 2
+  - - 32
+    - 64
+    - 4
+    - 2
+  - - 64
+    - 128
+    - 4
+    - 2
+  - - 128
+    - 256
+    - 4
+    - 2
+  free_nats: 3.0
+  grad_clip_norm: 1000.0
+  hidden_size_fcs: 200
+  kl_scale: 1.0
+  latent_state_size: 30
+  min_std: 0.1
+  obs_encoding_size: 1024
+  obs_shape:
+  - 3
+  - 64
+  - 64
+experiment: default
+log_frequency_agent: 1000
+overrides:
+  action_noise_std: 0.3
+  batch_size: 50
+  cem_alpha: 0.0
+  cem_clipped_normal: true
+  cem_elite_ratio: 0.1
+  cem_num_iters: 10
+  cem_population_size: 1000
+  env: dmcontrol_walker_walk
+  env_cfg:
+    _target_: mbrl.third_party.dmc2gym.wrappers.DMCWrapper
+    bit_depth: 5
+    domain_name: walker
+    frame_skip: 2
+    from_pixels: true
+    height: 64
+    task_kwargs:
+      random: 0
+    task_name: walk
+    visualize_reward: false
+    width: 64
+  free_nats: 3
+  kl_scale: 1.0
+  num_episodes: 10000
+  num_grad_updates: 100
+  planning_horizon: 12
+  sequence_length: 50
+  term_fn: no_termination
+  trial_length: 100
+root_dir: ./exp
+save_video: false
+seed: 0

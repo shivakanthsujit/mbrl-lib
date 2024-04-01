@@ -27,6 +27,5 @@ wheels/
 *.egg
 MANIFEST
 
-examples/conf
 examples/logs
 examples/out
