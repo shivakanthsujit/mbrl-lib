@@ -9,6 +9,7 @@ from typing import Counter, Dict, List, Mapping, Tuple, Union
 
 import termcolor
 import torch
+from tqdm import tqdm
 
 LogFormatType = List[Tuple[str, str, str]]
 LogTypes = Union[int, float, torch.Tensor]
@@ -88,7 +89,7 @@ class MetersGroup(object):
         for key, disp_key, ty in self._formatting:
             value = data.get(key, 0)
             pieces.append(self._format(disp_key, value, ty))
-        print(" | ".join(pieces))
+        tqdm.write(" | ".join(pieces))
 
     def dump(self, step: int, prefix: str, save: bool = True, color: str = "yellow"):
         if len(self._meters) == 0:

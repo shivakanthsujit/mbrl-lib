@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+from termcolor import colored
 import torch
 import torch.distributions
 import torch.nn as nn
@@ -255,6 +256,9 @@ class PlaNetModel(Model):
         self.decoder = Conv2dDecoder(
             latent_state_size + belief_size, decoder_config[0], decoder_config[1]
         )
+
+        print(colored(f"Encoder: {encoder_config}", "red"))
+        print(colored(f"Decoder: {decoder_config}", "red"))
 
         self.reward_model = nn.Sequential(
             nn.Linear(belief_size + latent_state_size, hidden_size_fcs),
