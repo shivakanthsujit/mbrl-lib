@@ -15,7 +15,7 @@
 #SBATCH --mail-type=REQUEUE
 #SBATCH --mail-type=ALL
 
-source ~/ENV/bin/activate
+# source ~/ENV/bin/activate
 
 env=${1:-"room-multi-passage"}
 sparse_reward=${2:-False}
@@ -26,19 +26,24 @@ dynamics_model=planet
 
 logdir="logs"
 
-num_episodes=1000
+num_episodes=2500
+
+# ! ONLY FOR EVAL
+test_args="eval_only=True"
 
 # logdir="${logdir}/testing"
-# SLURM_ARRAY_TASK_ID=0
+SLURM_ARRAY_TASK_ID=0
 # num_episodes=2
 # env_args="${env_args}"
 # timelimit=20
 #SBATCH --account=def-bengioy
 #SBATCH --account=rrg-bengioy-ad
 
-eval_eps=20
+test_args="${test_args} experiment="cem_diff" overrides.cem_num_iters=2 overrides.cem_population_size=100"
+
+eval_eps=100
 env_args="${env_args} eval_eps=${eval_eps} env_name=${env} sparse_reward=${sparse_reward} overrides.trial_length=${timelimit}"
 
 seed=${SLURM_ARRAY_TASK_ID}
 
-python main.py root_dir=${logdir} seed=${seed} ${env_args} dynamics_model=${dynamics_model} algorithm.num_episodes=${num_episodes} algorithm.test_frequency=50
+python main.py root_dir=${logdir} seed=${seed} ${env_args} dynamics_model=${dynamics_model} algorithm.num_episodes=${num_episodes} algorithm.test_frequency=50 ${test_args}

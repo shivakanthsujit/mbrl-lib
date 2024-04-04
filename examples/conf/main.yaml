@@ -14,6 +14,8 @@ env_name: "polygon-obs"
 sparse_reward: True
 eval_eps: 20
 
+eval_only: False
+
 experiment: default
 
 root_dir: "./exp"

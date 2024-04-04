@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-files = glob.glob("logs/planet/default/**/**/eval.npz")
+files = glob.glob("logs/planet/cem_diff/**/**/eval.npz")
 files = sorted(files)
 
 data = defaultdict(list)
@@ -17,7 +17,7 @@ for fname in files:
     splits = env_name.split("-")
     sparse = splits[-1]
     env = "-".join(splits[:-1])
-    x = np.load(fname)["rews"]
+    x = np.load(fname)["success"]
     data[env_name].append(x)
 
 env_map = {
@@ -37,7 +37,7 @@ for env_name, env_data in data.items():
     env = "-".join(splits[:-1])
     name = f"{env_map[env]} ({sparse_map[sparse]})"
     env_data = np.array(env_data)
-    print_data[name] = f"{env_data.mean():.2f} +- {env_data.std():.2f}"
+    print_data[name] = f"{env_data.mean():.2f} +- {env_data.mean(-1).std():.2f}"
 
 df = pd.DataFrame(print_data.items(), columns=["Env", "Score"])
 
@@ -51,4 +51,4 @@ df = pd.DataFrame(print_data.items(), columns=["Env", "Score"])
 #     for env, env_list in sparse_dict.items():
 #         std_data[sparse][env] = np.std(env_list)
 
-pprint(mean_data)
+# pprint(mean_data)

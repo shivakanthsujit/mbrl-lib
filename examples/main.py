@@ -18,6 +18,9 @@ from dataclasses import dataclass
 from pclast_envs.env_wrapper import make_env
 from resize_obs import ResizeObservation
 from termcolor import colored 
+from mbrl.models import ModelEnv
+from mbrl.env.termination_fns import no_termination
+from mbrl.planning import create_trajectory_optim_agent_for_model
 
 @dataclass
 class TrainConfig:
@@ -64,11 +67,21 @@ def run(cfg: omegaconf.DictConfig):
 
     # cfg.dynamics_model.action_size = action_dim
 
-    np.random.seed(cfg.seed)
-    torch.manual_seed(cfg.seed)
-    planet_model, agent, _ = planet.train(env, cfg)
+    if not cfg.eval_only:
+        np.random.seed(cfg.seed)
+        torch.manual_seed(cfg.seed)
+        planet_model, agent, _ = planet.train(env, cfg)
+    else:
+        cfg.dynamics_model.action_size = env.action_space.shape[0]
+        planet_model: mbrl.models.PlaNetModel = hydra.utils.instantiate(cfg.dynamics_model)
+        work_dir = os.getcwd()
+        planet_model.load(work_dir)
+        model_env = ModelEnv(env, planet_model, no_termination)
+        agent = create_trajectory_optim_agent_for_model(model_env, cfg.algorithm.agent)
+
 
     rews = []
+    success = []
     for _ in tqdm(range(cfg.eval_eps), desc="Eval Loop"):
         # Collect one episode of data
         episode_reward = 0.0
@@ -86,14 +99,17 @@ def run(cfg: omegaconf.DictConfig):
             episode_reward += reward
             obs = next_obs
         rews.append(episode_reward)
+        success.append(info["is_success"])
 
     rews = np.array(rews)
+    success = np.array(success)
     mean = rews.mean()
     std = rews.std()
     fname = os.path.join(os.getcwd(), "eval.npz")
-    np.savez(fname, rews=rews)
+    np.savez(fname, rews=rews, success=success)
     print(f"Eval saved to {fname}")
     print(f"{mean:.2f} +- {std:.2f}")
+    print(f"{success.mean():.2f} +- {success.std():.2f}")
 
 
 
